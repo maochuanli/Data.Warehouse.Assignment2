@@ -6,6 +6,7 @@
 package com.countdown.thread;
 
 import com.countdown.StreamPartitionQueue;
+import com.countdown.bean.pool.TransactionBean;
 import java.util.HashMap;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -19,6 +20,9 @@ public class StreamQueueAssemblyWorker extends Thread{
     private volatile boolean running = true;
     private Queue realtimeQueue = null;
     
+    public StreamQueueAssemblyWorker(){
+        this.setName("Stream.Record.Extractor");
+    }
     public synchronized void setStopFlag(){
         running = false;
     }
@@ -39,7 +43,6 @@ public class StreamQueueAssemblyWorker extends Thread{
                 processRecord(record);
             }else{
                 try {
-                    System.out.print(".");
                     Thread.sleep(5);
                     
                 } catch (InterruptedException ex) {
@@ -52,17 +55,25 @@ public class StreamQueueAssemblyWorker extends Thread{
             HashMap record = (HashMap) realtimeQueue.poll();
             processRecord(record);
         }
-        
-        System.out.println("Meshjoin Worker Completed!");
+        //flush the data in stream partition queue
+        StreamPartitionQueue.flushPartitions();
+        info("Meshjoin Worker Completed!");
     }
 
     private void processRecord(HashMap record) {
+        Long id = (Long) record.get(TransactionBean.TRANSACTION_ID);
+        if(id==50){
+            info("AssemblyWorker: got 50");
+        }
         StreamPartitionQueue.addRecord(record);
     }
     
     public String toString(){
         return "queue size: "+this.realtimeQueue.size();
     }
-
+    
+    void info(String msg){
+        Logger.getLogger(StreamQueueAssemblyWorker.class.getName()).log(Level.INFO, msg);
+    }
 
 }

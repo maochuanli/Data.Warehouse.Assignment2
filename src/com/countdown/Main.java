@@ -33,7 +33,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             
-            new Main().testMeshJoin();
+            new Main().test();
         } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -50,6 +50,10 @@ public class Main {
     }
     
     void test() throws Exception{
+        DataLoaderWorker loaderT = new DataLoaderWorker();
+        loaderT.setup();
+        loaderT.start();
+        
         RealtimeDataProducer dataProducer = new RealtimeDataProducer();
         dataProducer.setup();
         StreamQueueAssemblyWorker meshjoiner = new StreamQueueAssemblyWorker();
@@ -59,10 +63,18 @@ public class Main {
         dataProducer.start();
         
         dataProducer.join();
-        Thread.sleep(100);
+        
+        
         meshjoiner.setStopFlag();
         
-        System.out.println(meshjoiner.toString());
+        meshjoiner.join();
+        
+        
+        
+        loaderT.setStopFlag();
+        loaderT.join();
+        
+        System.out.println("END");
     }
     
     void testMeshJoin(){
@@ -75,7 +87,7 @@ public class Main {
             HashMap record;
             try {
                 record = getObjectPool().borrowObject();
-                record.put(TransactionBean.TRANSACTION_ID, i);
+                record.put(TransactionBean.TRANSACTION_ID, (long)i);
                 record.put(TransactionBean.PRODUCT_ID, "P-"+(1000+i)+"");
 //            record.put(TransactionBean.CUSTOMER_ID, result.getString(TransactionBean.CUSTOMER_ID));
 //            record.put(TransactionBean.CUSTOMER_NAME, result.getString(TransactionBean.CUSTOMER_NAME));

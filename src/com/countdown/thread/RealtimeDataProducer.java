@@ -6,13 +6,16 @@
 package com.countdown.thread;
 
 import com.countdown.Main;
+import com.countdown.StreamPartitionQueue;
 import com.countdown.bean.pool.TransactionBean;
 import com.countdown.db.DBManager;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,8 +29,12 @@ public class RealtimeDataProducer extends Thread{
     private Connection inConnection;
     private volatile boolean running = true;
     private Queue realtimeInputQueue = null;
-    private final String SQL = "select * from KQC3001.TRANSACTIONS order by transaction_id";
+    private final String SQL = "select * from KQC3001.TRANSACTIONS  order by transaction_id"; //where transaction_id<51
+    private HashSet<Long> idSet = new HashSet<>();
     
+    public RealtimeDataProducer(){
+        this.setName("Realtime.Data.Producer");
+    }
     public synchronized void setStopFlag(){
         running = false;
     }
@@ -50,7 +57,6 @@ public class RealtimeDataProducer extends Thread{
     
     @Override
     public void run() {
-        int i =0;
         
         try {
             Statement statement = inConnection.createStatement();
@@ -65,8 +71,10 @@ public class RealtimeDataProducer extends Thread{
         } catch (SQLException ex) {
             Logger.getLogger(RealtimeDataProducer.class.getName()).log(Level.SEVERE, null, ex);
         }
-            
-        System.out.println("Realtime Data Producer Worker Completed with last transaction id: "+lastProcessedTID);
+        
+        Object[] toArray = idSet.toArray();
+        Arrays.sort(toArray);
+//        info("Realtime Data Producer Worker Completed with all transactions id: "+Arrays.toString(toArray));
     }
 
 
@@ -85,10 +93,18 @@ public class RealtimeDataProducer extends Thread{
             record.put(TransactionBean.TRANSACTION_QUANTITY, result.getLong(TransactionBean.TRANSACTION_QUANTITY));
             
             realtimeInputQueue.offer(record);
-//            System.out.println("insert record: "+lastProcessedTID+",queue size: "+realtimeQueue.size());
+            idSet.add(lastProcessedTID);
+            if(lastProcessedTID == 50){
+                info("Producer: insert record: 50");
+            }
+//            
         } catch (Exception ex) {
             Logger.getLogger(RealtimeDataProducer.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    void info(String msg){
+        Logger.getLogger(RealtimeDataProducer.class.getName()).log(Level.INFO, msg);
     }
     
 }
