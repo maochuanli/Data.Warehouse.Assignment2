@@ -1,4 +1,4 @@
-connect 'jdbc:derby://localhost:1527/countdownDB;create=true';
+connect 'jdbc:derby://localhost:1527/countdownDB;create=true;user=kqc3001;password=password';
 
 CREATE SCHEMA KQC3001;
 SET SCHEMA KQC3001;

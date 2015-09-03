@@ -69,5 +69,33 @@
     properties which you can use, check the target you are overriding in the
     nbproject/build-impl.xml file. 
 
+    <echoproperties/>
+    dist.dir
+
     -->
+    <target name="-post-jar" >
+        
+       
+       <copy todir="${dist.dir}">
+           <fileset dir="${basedir}">
+               <include name="system.properties"/>
+               <include name="*.sh"/>
+               <include name="*.bat"/>
+           </fileset>
+       </copy> 
+       
+       <copydir src="${basedir}/DDL" dest="${dist.dir}/DDL"/>
+       <copydir src="/Users/maochuanli/Downloads/db-derby-10.11.1.1-bin/" dest="${dist.dir}/derby.home"/>
+       <copy todir="${dist.dir}/derby.home/">
+           <fileset dir="${basedir}">
+               <include name="derby.properties"/>
+           </fileset>
+       </copy> 
+       <copy file="${basedir}/README.md" toFile="${dist.dir}/README.TXT" overwrite="true">
+       </copy>
+       
+       <chmod dir="${dist.dir}" perm="+x" includes="**/*.sh"/>
+       <chmod dir="${dist.dir}" perm="+x" includes="${dist.dir}/derby.home/bin/startNetworkServer"/>
+       
+    </target>
 </project>

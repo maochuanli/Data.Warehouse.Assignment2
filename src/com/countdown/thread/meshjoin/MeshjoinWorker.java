@@ -93,7 +93,9 @@ public class MeshjoinWorker {
             ResultSet masterResult = stat.executeQuery(QueryPartitionSQL);
 
             int skipCount = this.currentMasterPartitionIndex * masterPartitionSize;
-            masterResult.absolute(skipCount);
+            if(skipCount>0){//oracle driver dose not support absolute(0) 
+                masterResult.absolute(skipCount);
+            }
 
             int i = 0;
             while (masterResult.next()) {
