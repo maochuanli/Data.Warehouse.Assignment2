@@ -17,11 +17,12 @@ import java.util.logging.Logger;
  * @author maochuanli
  */
 public class MainSystem {
+
     private static final String systemFileName = "system.properties";
     private static final Properties settings = new Properties();
     private static boolean loaded = false;
-    
-    static{
+
+    static {
         FileInputStream fin = null;
         try {
             fin = new FileInputStream(systemFileName);
@@ -34,54 +35,54 @@ public class MainSystem {
         } finally {
             try {
                 fin.close();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(MainSystem.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
-    
-    public static boolean isReady(){
+
+    public static boolean isReady() {
         return loaded;
     }
-    
-    public static String getInDBDriver(){
+
+    public static String getInDBDriver() {
         return settings.getProperty("in.db.driverClassName");
     }
-    
-    public static String getInDBURL(){
+
+    public static String getInDBURL() {
         return settings.getProperty("in.db.url");
     }
-    
-    public static String getInDBUser(){
+
+    public static String getInDBUser() {
         return settings.getProperty("in.db.username");
     }
-    
-    public static String getInDBPass(){
+
+    public static String getInDBPass() {
         return settings.getProperty("in.db.password");
     }
-    
-    public static String getOutDBDriver(){
+
+    public static String getOutDBDriver() {
         return settings.getProperty("out.db.driverClassName");
     }
-    
-    public static String getOutDBURL(){
+
+    public static String getOutDBURL() {
         return settings.getProperty("out.db.url");
     }
-    
-    public static String getOutDBUser(){
+
+    public static String getOutDBUser() {
         return settings.getProperty("out.db.username");
     }
-    
-    public static String getOutDBPass(){
+
+    public static String getOutDBPass() {
         return settings.getProperty("out.db.password");
     }
-    
-    public static int getMeshjoinPartitions(){
+
+    public static int getMeshjoinPartitions() {
         String is = settings.getProperty("meshjoin.partitions");
         return Integer.parseInt(is);
     }
-    
-    public static int getPartitionSize(){
+
+    public static int getPartitionSize() {
         String is = settings.getProperty("stream.partition.size");
         return Integer.parseInt(is);
     }

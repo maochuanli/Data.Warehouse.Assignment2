@@ -48,10 +48,6 @@ public class StreamPartitionQueue {
      * @param record 
      */
     public static synchronized void addRecord(HashMap record){
-//        Long id = (Long) record.get(TransactionBean.TRANSACTION_ID);
-//        if(id==50){
-//            INSTANCE.info("StreamPartitionQueue: got 50");
-//        }
         
         StreamPartition partition = INSTANCE.getCurrentStreamPartition();
         
@@ -68,10 +64,7 @@ public class StreamPartitionQueue {
     
     public static synchronized StreamPartition pollPartition(){
         if(INSTANCE.queue.size() > 0){
-//            StreamPartition topPartition = (StreamPartition) INSTANCE.queue.peek();
-//            if(INSTANCE.partitionID - topPartition.getPartitionID() >= INSTANCE.partitions){
-                return (StreamPartition) INSTANCE.queue.poll();
-//            }
+            return (StreamPartition) INSTANCE.queue.poll();
         }
         return null;
     }

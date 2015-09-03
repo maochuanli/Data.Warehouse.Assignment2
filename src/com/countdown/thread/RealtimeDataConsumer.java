@@ -17,41 +17,44 @@ import java.util.logging.Logger;
  *
  * @author maochuanli
  */
-public class RealtimeDataConsumer extends Thread{
+public class RealtimeDataConsumer extends Thread {
+
     private volatile boolean running = true;
     private Queue realtimeInputQueue = null;
     private int inputQueueMaxSize = 0;
-    
-    public RealtimeDataConsumer(){
+
+    public RealtimeDataConsumer() {
         this.setName("Realtime.Data.Extractor.T");
     }
-    public synchronized void setStopFlag(){
+
+    public synchronized void setStopFlag() {
         running = false;
     }
+
     /**
      * To get db connection
      */
-    public boolean setup(){
+    public boolean setup() {
         realtimeInputQueue = RealtimeDataQueue.getInputDataQueue();
         return realtimeInputQueue != null;
     }
-    
-    public void tearDown(){
+
+    public void tearDown() {
         DBManager.closeInConnection(DBManager.IN_MASTER);
     }
-    
+
     @Override
     public void run() {
-        while(running){
+        while (running) {
             int qSize = realtimeInputQueue.size();
-            
-            if(qSize > 0){
+
+            if (qSize > 0) {
                 HashMap record = (HashMap) realtimeInputQueue.poll();
                 processRecord(record);
-                if(qSize > inputQueueMaxSize){
+                if (qSize > inputQueueMaxSize) {
                     inputQueueMaxSize = qSize;
                 }
-            }else{
+            } else {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException ex) {
@@ -59,21 +62,21 @@ public class RealtimeDataConsumer extends Thread{
                 }
             }
         }
-        
-        while(realtimeInputQueue.size()>0){
+
+        while (realtimeInputQueue.size() > 0) {
             HashMap record = (HashMap) realtimeInputQueue.poll();
             processRecord(record);
         }
         //flush the data in stream partition queue
         StreamPartitionQueue.flushPartitions();
-        info("Meshjoin Worker Completed! Max Input Queue Size: "+inputQueueMaxSize);
+        info("Meshjoin Worker Completed! Max Input Queue Size: " + inputQueueMaxSize);
     }
 
     private void processRecord(HashMap record) {
         StreamPartitionQueue.addRecord(record);
     }
-    
-    void info(String msg){
+
+    void info(String msg) {
         Logger.getLogger(RealtimeDataConsumer.class.getName()).log(Level.INFO, msg);
     }
 

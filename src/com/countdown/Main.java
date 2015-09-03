@@ -5,13 +5,10 @@
  */
 package com.countdown;
 
-import com.countdown.thread.meshjoin.StreamPartitionQueue;
 import com.countdown.bean.pool.RecordFactory;
-import com.countdown.bean.pool.TransactionBean;
 import com.countdown.thread.DataLoaderWorker;
 import com.countdown.thread.RealtimeDataConsumer;
 import com.countdown.thread.RealtimeDataProducer;
-import java.io.IOException;
 
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -27,21 +24,53 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 public class Main {
 
     private static ObjectPool<HashMap> pool;
-    
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         try {
-            
-            new Main().execute();
+            new Main().executeETL();
         } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public static synchronized ObjectPool<HashMap> getObjectPool(){
-        if(pool==null){
+
+    void executeETL() throws Exception {
+        //start the Data Warehouse Loader Thread
+        DataLoaderWorker loaderT = new DataLoaderWorker();
+        loaderT.setup();
+        loaderT.start();
+
+        //Start the Meshjoin Realtime Extractor Thread
+        RealtimeDataConsumer meshjoiner = new RealtimeDataConsumer();
+        meshjoiner.setup();
+        meshjoiner.start();
+
+        //Start the Realtime Data Producer Thread
+        RealtimeDataProducer dataProducer = new RealtimeDataProducer();
+        dataProducer.setup();
+        dataProducer.start();
+
+        //Wait for the producer thread to complete
+        dataProducer.join();
+        dataProducer.tearDown();
+
+        //Wait for the extractor thread to complete
+        meshjoiner.setStopFlag();
+        meshjoiner.join();
+        meshjoiner.tearDown();
+
+        //Wait for the data loader thread to complete
+        loaderT.setStopFlag();
+        loaderT.join();
+        loaderT.tearDown();
+
+        System.out.println("DONE ETL!");
+    }
+
+    public static synchronized ObjectPool<HashMap> getObjectPool() {
+        if (pool == null) {
             GenericObjectPoolConfig config = new GenericObjectPoolConfig();
             RecordFactory factory = new RecordFactory();
             config.setMaxTotal(20000);
@@ -49,35 +78,4 @@ public class Main {
         }
         return pool;
     }
-    
-    void execute() throws Exception{
-        DataLoaderWorker loaderT = new DataLoaderWorker();
-        loaderT.setup();
-        loaderT.start();
-        
-        RealtimeDataProducer dataProducer = new RealtimeDataProducer();
-        dataProducer.setup();
-        
-        RealtimeDataConsumer meshjoiner = new RealtimeDataConsumer();
-        meshjoiner.setup();        
-        meshjoiner.start();
-        
-        dataProducer.start();
-        
-        dataProducer.join();
-        dataProducer.tearDown();
-        
-        meshjoiner.setStopFlag();
-        
-        meshjoiner.join();
-        meshjoiner.tearDown();
-        
-        
-        loaderT.setStopFlag();
-        loaderT.join();
-        loaderT.tearDown();
-        
-        System.out.println("DONE ETL!");
-    }
-    
 }
