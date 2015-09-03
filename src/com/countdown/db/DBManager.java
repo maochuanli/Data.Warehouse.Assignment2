@@ -27,20 +27,16 @@ public class DBManager {
     public static synchronized Connection getInConnection(String flags){
         if(inTransConn==null){
             Properties props = new Properties(); // connection properties
-            // providing a user name and password is optional in the embedded
-            // and derbyclient frameworks
             props.put("user", MainSystem.getInDBUser());
             props.put("password", MainSystem.getInDBPass());
             String dbURL = MainSystem.getInDBURL();
             
             try {
                 Class.forName(MainSystem.getInDBDriver());
-                // We want to control transactions manually. Autocommit is on by
-                // default in JDBC.
                 inTransConn = DriverManager.getConnection(dbURL, props);
                 inMasterConn = DriverManager.getConnection(dbURL, props);
-                System.out.println("Connected to (and created) database " + dbURL);
-                inTransConn.setAutoCommit(false);
+                System.out.println("Connected to (and created) Operational database " + dbURL);
+//                inTransConn.setAutoCommit(false);
             } catch (SQLException ex) {
                 printSQLException(ex);
             } catch (ClassNotFoundException ex) {
@@ -122,7 +118,7 @@ public class DBManager {
                 // default in JDBC.
                 outConn = DriverManager.getConnection(dbURL, props);
 
-                System.out.println("Connected to (and created) database " + dbURL);
+                System.out.println("Connected to (and created) Data Warehouse database " + dbURL);
                 outConn.setAutoCommit(false);
             } catch (SQLException ex) {
                 printSQLException(ex);
@@ -136,6 +132,7 @@ public class DBManager {
     public static synchronized void closeOutConnection(){
         try {
             if (outConn != null) {
+                outConn.commit();
                 outConn.close();
                 outConn = null;
             }
@@ -147,18 +144,17 @@ public class DBManager {
     
     public static void printSQLException(SQLException e)
     {
-        // Unwraps the entire exception chain to unveil the real cause of the
-        // Exception.
-        while (e != null){
-        
-            logMsg("\n----- SQLException -----");
-            logMsg("  SQL State:  " + e.getSQLState());
-            logMsg("  Error Code: " + e.getErrorCode());
-            logMsg("  Message:    " + e.getMessage());
-            // for stack traces, refer to derby.log or uncomment this:
-            //e.printStackTrace(System.err);
-            e = e.getNextException();
-        }
+//        while (e != null){
+//        
+//            logMsg("\n----- SQLException -----");
+//            logMsg("  SQL State:  " + e.getSQLState());
+//            logMsg("  Error Code: " + e.getErrorCode());
+//            logMsg("  Message:    " + e.getMessage());
+//            // for stack traces, refer to derby.log or uncomment this:
+//            //e.printStackTrace(System.err);
+//            e = e.getNextException();
+//        }
+        e.printStackTrace();
     }
     
     

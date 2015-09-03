@@ -3,12 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.countdown;
+package com.countdown.thread.meshjoin;
 
-import com.countdown.bean.pool.TransactionBean;
-import com.countdown.thread.StreamQueueAssemblyWorker;
+import com.countdown.MainSystem;
 import java.util.HashMap;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;

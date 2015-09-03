@@ -1,3 +1,4 @@
+connect 'jdbc:derby://localhost:1527/countdownDW;create=true';
 
 create schema kqc3001;
 set schema kqc3001;

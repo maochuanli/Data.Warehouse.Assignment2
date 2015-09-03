@@ -17,8 +17,8 @@ import java.util.logging.Logger;
  * @author maochuanli
  */
 public class MainSystem {
-    private static String systemFileName = "system.properties";
-    private static Properties settings = new Properties();
+    private static final String systemFileName = "system.properties";
+    private static final Properties settings = new Properties();
     private static boolean loaded = false;
     
     static{
@@ -83,6 +83,11 @@ public class MainSystem {
     
     public static int getPartitionSize(){
         String is = settings.getProperty("stream.partition.size");
+        return Integer.parseInt(is);
+    }
+
+    public static int getInsertBatchSize() {
+        String is = settings.getProperty("sql.insert.batch.size");
         return Integer.parseInt(is);
     }
 }

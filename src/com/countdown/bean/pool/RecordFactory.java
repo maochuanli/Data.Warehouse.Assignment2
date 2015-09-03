@@ -16,8 +16,6 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
  * @author maochuanli
  */
 public class RecordFactory extends BasePooledObjectFactory<HashMap> {
-
-    public int i;
     
     @Override
     public HashMap create() throws Exception {

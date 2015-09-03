@@ -5,10 +5,11 @@
  */
 package com.countdown;
 
+import com.countdown.thread.meshjoin.StreamPartitionQueue;
 import com.countdown.bean.pool.RecordFactory;
 import com.countdown.bean.pool.TransactionBean;
 import com.countdown.thread.DataLoaderWorker;
-import com.countdown.thread.StreamQueueAssemblyWorker;
+import com.countdown.thread.RealtimeDataConsumer;
 import com.countdown.thread.RealtimeDataProducer;
 import java.io.IOException;
 
@@ -33,7 +34,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             
-            new Main().test();
+            new Main().execute();
         } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -49,71 +50,34 @@ public class Main {
         return pool;
     }
     
-    void test() throws Exception{
+    void execute() throws Exception{
         DataLoaderWorker loaderT = new DataLoaderWorker();
         loaderT.setup();
         loaderT.start();
         
         RealtimeDataProducer dataProducer = new RealtimeDataProducer();
         dataProducer.setup();
-        StreamQueueAssemblyWorker meshjoiner = new StreamQueueAssemblyWorker();
-        meshjoiner.setup();
         
+        RealtimeDataConsumer meshjoiner = new RealtimeDataConsumer();
+        meshjoiner.setup();        
         meshjoiner.start();
+        
         dataProducer.start();
         
         dataProducer.join();
-        
+        dataProducer.tearDown();
         
         meshjoiner.setStopFlag();
         
         meshjoiner.join();
-        
+        meshjoiner.tearDown();
         
         
         loaderT.setStopFlag();
         loaderT.join();
+        loaderT.tearDown();
         
-        System.out.println("END");
+        System.out.println("DONE ETL!");
     }
     
-    void testMeshJoin(){
-        
-        DataLoaderWorker loaderT = new DataLoaderWorker();
-        loaderT.setup();
-        loaderT.start();
-        
-        for(int i=0;i<51;i++){
-            HashMap record;
-            try {
-                record = getObjectPool().borrowObject();
-                record.put(TransactionBean.TRANSACTION_ID, (long)i);
-                record.put(TransactionBean.PRODUCT_ID, "P-"+(1000+i)+"");
-//            record.put(TransactionBean.CUSTOMER_ID, result.getString(TransactionBean.CUSTOMER_ID));
-//            record.put(TransactionBean.CUSTOMER_NAME, result.getString(TransactionBean.CUSTOMER_NAME));
-//            record.put(TransactionBean.STORE_ID, result.getString(TransactionBean.STORE_ID));
-//            record.put(TransactionBean.STORE_NAME, result.getString(TransactionBean.STORE_NAME));
-//            record.put(TransactionBean.TRANSACTION_DATE, result.getDate(TransactionBean.TRANSACTION_DATE));
-//            record.put(TransactionBean.TRANSACTION_QUANTITY, result.getLong(TransactionBean.TRANSACTION_QUANTITY));
-                if(i%10 ==0){
-                    record.put(TransactionBean.PRODUCT_ID, "P-"+(100+i)+"");
-                }
-                StreamPartitionQueue.addRecord(record);
-            } catch (Exception ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-        }
-        
-        try {
-            System.out.println("wait for thread to complete...");
-            System.in.read();
-            loaderT.setStopFlag();
-            loaderT.join();
-        } catch (IOException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
 }

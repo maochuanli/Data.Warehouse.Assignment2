@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.countdown;
+package com.countdown.thread.meshjoin;
 
+import com.countdown.Main;
 import com.countdown.bean.pool.MasterBean;
 import com.countdown.bean.pool.TransactionBean;
 import com.countdown.db.DBManager;
-import com.countdown.thread.RealtimeDataQueue;
+import com.countdown.queue.RealtimeDataQueue;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
