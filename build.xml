@@ -7,7 +7,7 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="CountDown.Data.Warehouse" default="default" basedir=".">
+<project name="CountDown.Data.Warehouse" default="jar" basedir=".">
     <description>Builds, tests, and runs the project CountDown.Data.Warehouse.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
@@ -73,29 +73,42 @@
     dist.dir
 
     -->
+    <target name="-post-clean">
+        <echo message="clean the dir files: ${user.home}/NB.Builds/${application.title}"/>
+        <delete quiet="true" file="${user.home}/NB.Builds/${application.title}/LI.maochuan.14854389.assignment2.v1.zip"/>
+        <delete quiet="true" dir="${user.home}/NB.Builds/${application.title}/LI.14854389.a2.v1"/>
+    </target>
+    
     <target name="-post-jar" >
+        <copy todir="${dist.dir}">
+            <fileset dir="${basedir}">
+                <include name="system.properties"/>
+                <include name="*.sh"/>
+                <include name="*.bat"/>
+                <include name="*.doc"/>
+            </fileset>
+        </copy> 
+       
+        <copydir src="${basedir}/DDL" dest="${dist.dir}/DDL"/>
+        <copydir src="${user.home}/db-derby-10.11.1.1-bin/" dest="${dist.dir}/derby.home"/>
+        <copy todir="${dist.dir}/derby.home/">
+            <fileset dir="${basedir}">
+                <include name="derby.properties"/>
+            </fileset>
+        </copy> 
+        <copy file="${basedir}/README" toFile="${dist.dir}/README.TXT" overwrite="true"/>
+        <copy file="${basedir}/LICENSE" toFile="${dist.dir}/LICENSE" overwrite="true"/>
         
+        <echo message="chmod shell scripts"/>
+        
+        <chmod dir="${dist.dir}" perm="ugo+rx" includes="**/startNetworkServer"/>
+        <chmod dir="${dist.dir}" perm="ugo+rx" includes="**/ij"/>
+        <chmod dir="${dist.dir}" perm="ugo+rx" includes="**/*.sh"/>
        
-       <copy todir="${dist.dir}">
-           <fileset dir="${basedir}">
-               <include name="system.properties"/>
-               <include name="*.sh"/>
-               <include name="*.bat"/>
-           </fileset>
-       </copy> 
-       
-       <copydir src="${basedir}/DDL" dest="${dist.dir}/DDL"/>
-       <copydir src="/Users/maochuanli/Downloads/db-derby-10.11.1.1-bin/" dest="${dist.dir}/derby.home"/>
-       <copy todir="${dist.dir}/derby.home/">
-           <fileset dir="${basedir}">
-               <include name="derby.properties"/>
-           </fileset>
-       </copy> 
-       <copy file="${basedir}/README.md" toFile="${dist.dir}/README.TXT" overwrite="true">
-       </copy>
-       
-       <chmod dir="${dist.dir}" perm="+x" includes="**/*.sh"/>
-       <chmod dir="${dist.dir}" perm="+x" includes="${dist.dir}/derby.home/bin/startNetworkServer"/>
-       
+        <move file="${dist.dir}" tofile="${dist.dir}/../LI.14854389.a2.v1"/>
+        <zip destfile="${dist.dir}/../LI.maochuan.14854389.assignment2.v1.zip">
+            <zipfileset dir="${dist.dir}/../" includes="LI.14854389.a2.v1/**/*"  />
+            <zipfileset dir="${dist.dir}/../" includes="LI.14854389.a2.v1/*.sh" filemode="755" />            
+        </zip> 
     </target>
 </project>

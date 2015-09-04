@@ -21,7 +21,8 @@ public class DBManager {
 
     private DBManager() {
     }
-
+    private static Logger LOGGER = Logger.getLogger(DBManager.class.getName());
+    
     private static Connection inTransConn, inMasterConn, outConn;
     public static final String IN_TRANS = "in_transaction_conn";
     public static final String IN_MASTER = "in_transaction_conn";
@@ -37,12 +38,12 @@ public class DBManager {
                 Class.forName(MainSystem.getInDBDriver());
                 inTransConn = DriverManager.getConnection(dbURL, props);
                 inMasterConn = DriverManager.getConnection(dbURL, props);
-                System.out.println("Connected to (and created) Operational database " + dbURL);
+                LOGGER.info("Connected to Operational databases " + dbURL);
 
             } catch (SQLException ex) {
                 printSQLException(ex);
             } catch (ClassNotFoundException ex) {
-                Logger.getLogger(DBManager.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
         }
         if (flags.equals(IN_MASTER)) {
@@ -64,7 +65,7 @@ public class DBManager {
                     inMasterConn = null;
                 }
             }
-
+            LOGGER.info("Connection for input database ["+flags+"] is closed!");
         } catch (SQLException sqle) {
             printSQLException(sqle);
         }
@@ -86,12 +87,12 @@ public class DBManager {
             try {
                 Class.forName(MainSystem.getOutDBDriver());
                 outConn = DriverManager.getConnection(dbURL, props);
-                System.out.println("Connected to (and created) Data Warehouse database " + dbURL);
+                LOGGER.info("Connected to Data Warehouse database " + dbURL);
                 outConn.setAutoCommit(false);
             } catch (SQLException ex) {
                 printSQLException(ex);
             } catch (ClassNotFoundException ex) {
-                Logger.getLogger(DBManager.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
         }
         return outConn;
@@ -104,6 +105,7 @@ public class DBManager {
                 outConn.close();
                 outConn = null;
             }
+            LOGGER.info("Connection to output Data Warehouse is closed!");
         } catch (SQLException sqle) {
             printSQLException(sqle);
         }
@@ -112,19 +114,10 @@ public class DBManager {
 
     public static void printSQLException(SQLException e) {
         while (e != null) {
-
-            logMsg("\n----- SQLException -----");
-            logMsg("  SQL State:  " + e.getSQLState());
-            logMsg("  Error Code: " + e.getErrorCode());
-            logMsg("  Message:    " + e.getMessage());
+            LOGGER.severe("\n----- SQLException -----");
+            LOGGER.severe("  SQL State:  " + e.getSQLState());
+            LOGGER.severe("  Error Code: " + e.getErrorCode());
+            LOGGER.severe("  Message:    " + e.getMessage());
         }
-    }
-
-    public static void logMsg(String msg) {
-        Logger.getLogger(DBManager.class.getName()).log(Level.SEVERE, msg, (Throwable) null);
-    }
-
-    public static void logMsg(String msg, Exception e) {
-        Logger.getLogger(DBManager.class.getName()).log(Level.SEVERE, msg, e);
     }
 }

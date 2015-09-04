@@ -22,9 +22,5 @@ scriptPath=$(abspath $0)
 APP_HOME=$(dirname $scriptPath)
 source $APP_HOME/env.sh
 
-
-echo "APP_HOME" $APP_HOME
-echo "Derby Database Home:" $DERBY_HOME
-
 sh $DERBY_HOME/bin/ij $APP_HOME/DDL/Output.DW.DDL.sql
 

@@ -9,12 +9,16 @@ import com.countdown.MainSystem;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
  * @author maochuanli
  */
 public class StreamPartition {
+    
+    private static Logger LOGGER = Logger.getLogger(StreamPartition.class.getName());
+    
     private final long partitionID;
     private final int partitionSize;
     private final List<HashMap> partitionTupleList = new ArrayList<HashMap>();

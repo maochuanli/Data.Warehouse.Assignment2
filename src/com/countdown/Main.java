@@ -24,7 +24,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 public class Main {
 
     private static ObjectPool<HashMap> pool;
-
+    private static Logger LOGGER = Logger.getLogger(Main.class.getName());
     /**
      * @param args the command line arguments
      */
@@ -32,22 +32,25 @@ public class Main {
         try {
             new Main().executeETL();
         } catch (Exception ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
     }
 
     void executeETL() throws Exception {
         //start the Data Warehouse Loader Thread
+        LOGGER.info("Start up the Data Loader Thread...");
         DataLoaderWorker loaderT = new DataLoaderWorker();
         loaderT.setup();
         loaderT.start();
 
         //Start the Meshjoin Realtime Extractor Thread
+        LOGGER.info("Start up the Meshjoin Data Extractor Thread...");
         RealtimeDataConsumer meshjoiner = new RealtimeDataConsumer();
         meshjoiner.setup();
         meshjoiner.start();
 
         //Start the Realtime Data Producer Thread
+        LOGGER.info("Start up the Realtime Data Producer Thread...");
         RealtimeDataProducer dataProducer = new RealtimeDataProducer();
         dataProducer.setup();
         dataProducer.start();
@@ -55,18 +58,21 @@ public class Main {
         //Wait for the producer thread to complete
         dataProducer.join();
         dataProducer.tearDown();
+        LOGGER.info("Realtime Data Producer Thread Completed!");
 
         //Wait for the extractor thread to complete
         meshjoiner.setStopFlag();
         meshjoiner.join();
         meshjoiner.tearDown();
+        LOGGER.info("Meshjoin Data Extractor Thread Completed!");
 
         //Wait for the data loader thread to complete
         loaderT.setStopFlag();
         loaderT.join();
         loaderT.tearDown();
+        LOGGER.info("Data Loader Thread Completed!");
 
-        System.out.println("DONE ETL!");
+        LOGGER.severe("ALL DONE! Please execute the OLAP queries on Data Warehouse.");
     }
 
     public static synchronized ObjectPool<HashMap> getObjectPool() {

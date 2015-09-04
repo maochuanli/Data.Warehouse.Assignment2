@@ -16,6 +16,9 @@ import java.util.logging.Logger;
  * @author maochuanli
  */
 public class StreamPartitionQueue {
+    
+    private static Logger LOGGER = Logger.getLogger(StreamPartitionQueue.class.getName());
+    
     public static final int partitions = MainSystem.getMeshjoinPartitions();
     private final ConcurrentLinkedQueue queue = new ConcurrentLinkedQueue();
     
@@ -26,7 +29,7 @@ public class StreamPartitionQueue {
     
     
     public static synchronized void flushPartitions(){
-        INSTANCE.info("Flush all the left records in last partition!");
+        LOGGER.info("Flush all the left records in last partition!");
         
         if(INSTANCE.currentPartition != null){
             INSTANCE.queue.offer(INSTANCE.currentPartition);
@@ -37,7 +40,7 @@ public class StreamPartitionQueue {
         for(int i=0; i<partitions;i++){
             INSTANCE.partitionID++;
             StreamPartition dummyPartition = new StreamPartition(INSTANCE.partitionID);
-            INSTANCE.info("StreamPartitionQueue. new dummy partition id: "+ INSTANCE.partitionID);
+//            LOGGER.info("StreamPartitionQueue. new dummy partition id: "+ INSTANCE.partitionID);
             
             INSTANCE.queue.offer(dummyPartition);
             MeshjoinWorker.processMeshJoin(dummyPartition);
@@ -54,10 +57,10 @@ public class StreamPartitionQueue {
         partition.addRecord(record);
         
         if(INSTANCE.currentPartition.isFull()){
-            INSTANCE.info("partition full, push it into queue, process it");
+            LOGGER.info("partition full, push it into queue, process it");
             INSTANCE.queue.offer(INSTANCE.currentPartition);
             MeshjoinWorker.processMeshJoin(INSTANCE.currentPartition);
-            INSTANCE.info("SteamPartitionQueue.current partition size: is full: "+INSTANCE.currentPartition.getPartitionTupleList().size());
+//            INSTANCE.info("SteamPartitionQueue.current partition size: is full: "+INSTANCE.currentPartition.getPartitionTupleList().size());
             INSTANCE.currentPartition = null;
         }
     }
@@ -73,14 +76,10 @@ public class StreamPartitionQueue {
         if (currentPartition == null) {
             partitionID++;
             currentPartition = new StreamPartition(partitionID);
-            info("StreamPartitionQueue. new partition id: "+ currentPartition.getPartitionID());
+//            info("StreamPartitionQueue. new partition id: "+ currentPartition.getPartitionID());
         }
         
         return currentPartition;
         
-    }
-    
-    void info(String msg){
-        Logger.getLogger(StreamPartitionQueue.class.getName()).log(Level.INFO, msg);
     }
 }

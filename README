@@ -1,0 +1,93 @@
+
+             Mao Chuan Li's Data Warehouse Assignment2 Project
+
+  What is it?
+  -------------------
+
+  The Project is an implementation of the 2015 semester 2, Data Warehouse paper 
+  Assignment2 based on Java programming language. 
+    Prepared for:    Dr. Muhammad Asif Naeem
+    Prepared by:     LI, Mao Chuan
+    Student ID:      14854389
+    Paper Name:      Data Warehousing and Big Data
+    Paper Number:    COMP810
+    Assignment Name: Assessment 2 – DW Project
+    Submission Date: Friday, 30 th Oct 2015
+
+
+  Documentation
+  -------------------
+
+  The documentation for this project is available as a separate report for it.
+
+  Git Access
+  -------------------
+
+  The project source repository is available via Git from the github.com server; 
+  look here for details:
+
+  https://github.com/maochuanli/Data.Warehouse.Assignment2
+
+  Installation and Configuration
+  -------------------
+
+  The project is delivered as a zip file, unzipping the file into a directory is
+  all for installation. 
+  There are 2 configuration files need be updated before execution:
+  ******************************************************************************
+  env.sh | env.bat  - the JAVA_HOME variable must be set
+  system.properties - the database connection properties are optional to set
+                    - the meshjoin parameters are optional to set  
+
+  Execution
+  -------------------
+
+  By default, the project is using 2 Java Derby databases to store the coutndown
+  operational and data warehouse data. The zip file has a built-in derby database 
+  installation. 
+  0, To start the built-in derby database server: 
+     <INST_PATH>/startNetworkServer.sh | bat
+  1, To create operational database and populate the coundown transaction data
+     prepared by Dr. Muhammad Asif Naeem
+     <INST_PATH>/create.populate.countdown.data.sh | bat
+  2, To create the data warehouse star schema:
+     <INST_PATH>/create.DW.star.schema.sh | bat
+  3, To execute the program to extract the transaction data and load it into the 
+     data warehouse:
+     <INST_PATH>/runETL.sh | bat
+  4, To execute the OLAP queries:
+     <INST_PATH>/DW.OLAP.query.sh | bat
+   
+  For using Oracle database, 
+  0, Open the Oracle SQL Developer, and connect to a database
+  1, Execute the <INST_PATH>/DDL/Input.DB.DDL.sql to create the countdown 
+     transaction data and populate the data
+  2, Execute the <INST_PATH>/DDL/Output.DW.DDL.sql to create Data Warehouse 
+     star schema tables
+  3, Update the system.properties to update the database connection properties
+     to connect to Oracle database
+  4, To execute the program to extract the transaction data and load it into the 
+     data warehouse:
+     <INST_PATH>/runETL.sh | bat
+  5, Execute the <INST_PATH>/DDL/Assign2.DW.Query.sql file to make OLAP queries.
+
+  Licensing
+  ---------------------
+
+  Please see the file called LICENSE.
+
+  Notice
+  -------------------
+
+  For execution of the program, a Java Runtime must be installed on the local
+  operating system. 
+  All Mac OSX, Windows 2008, Debian platforms are supported and have been tested.
+  Both Derby and Oracle databases are supported.
+  Using derby and Oracle together is allowed!
+    
+  Troubleshooting
+  -------------------
+
+  In case the scripts provided are not working as intended, it maybe is caused 
+  by space in the installation directory, say "H:\some dir with space\countdown"
+  Try unzip the project file into a directory without space!

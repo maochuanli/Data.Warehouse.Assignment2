@@ -24,6 +24,8 @@ import java.util.logging.Logger;
  */
 public class RealtimeDataProducer extends Thread {
 
+    private static Logger LOGGER = Logger.getLogger(RealtimeDataProducer.class.getName());
+    
     private Long lastProcessedTID = (long) -1;
     private Connection inConnection;
     private volatile boolean running = true;
@@ -62,7 +64,7 @@ public class RealtimeDataProducer extends Thread {
 
     @Override
     public void run() {
-
+        long start = System.currentTimeMillis();
         try {
             Statement statement = inConnection.createStatement();
             ResultSet result = statement.executeQuery(SQL);
@@ -76,6 +78,8 @@ public class RealtimeDataProducer extends Thread {
         } catch (SQLException ex) {
             Logger.getLogger(RealtimeDataProducer.class.getName()).log(Level.SEVERE, null, ex);
         }
+        long end = System.currentTimeMillis();
+        LOGGER.info("Realtime Data Producer Completed! Runtime: " + (end - start) / 1000 + " seconds");
     }
 
     private void processRecord(ResultSet result) {

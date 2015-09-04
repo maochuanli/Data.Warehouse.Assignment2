@@ -15,6 +15,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -29,6 +30,8 @@ import java.util.logging.Logger;
  */
 public class DataLoaderWorker extends Thread {
 
+    private static Logger LOGGER = Logger.getLogger(DataLoaderWorker.class.getName());
+    
     private volatile boolean running = true;
     private Queue realtimeOutputQueue = null;
     private Connection outConn = null;
@@ -40,6 +43,8 @@ public class DataLoaderWorker extends Thread {
     private int outputQueueMaxSize = 0;
     private final int batchStmtCount = MainSystem.getInsertBatchSize();
     private int currentBatchCount = 0;
+    private Long maxTranID = Long.MIN_VALUE;
+    private final String queryMaxTransIDSQL = "select max(TRANSACTION_ID) from SALES";
 
     private final String queryTransSQL = "select * from SALES where TRANSACTION_ID=?";
     private final String updateSQL = "INSERT INTO SALES"
@@ -71,11 +76,12 @@ public class DataLoaderWorker extends Thread {
     //dates table
     private final String queryDateSQL = "select * from DATES where DATE_ID=?";
     private final String updateDateSQL = "INSERT INTO DATES"
-            + "(DATE_ID, DD, MM, QTR, YYYY, WEEK) VALUES"
-            + "(?,?,?,?,?,?)";
+            + "(DATE_ID, DD, MM, QTR, YYYY, WEEK_OF_YEAR, WEEKDAY) VALUES"
+            + "(?,?,?,?,?,?,?)";
     private Calendar calendar = new GregorianCalendar();
     private PreparedStatement queryDateStmt;
     private PreparedStatement preparedDateStmt;
+    private final String WEEKDAYS[] = {null,"SUNDAY","MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY","FRIDAY","SATURDAY"};
 
     public DataLoaderWorker() {
         this.setName("DW.DataLoader.T");
@@ -106,9 +112,17 @@ public class DataLoaderWorker extends Thread {
                 queryDateStmt = outConn.prepareStatement(queryDateSQL);
                 preparedDateStmt = outConn.prepareStatement(updateDateSQL);
 
+                Statement maxTranIDStmt = outConn.createStatement();
+                ResultSet maxSet = maxTranIDStmt.executeQuery(queryMaxTransIDSQL);
+                if(maxSet.next()){
+                    this.maxTranID = maxSet.getLong(1);
+                }
+                maxSet.close();
+                maxTranIDStmt.close();
+                
                 return outConn.isValid(0);
-            } catch (SQLException ex) {
-                Logger.getLogger(RealtimeDataProducer.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, null, ex);
             }
         }
         return false;
@@ -136,7 +150,7 @@ public class DataLoaderWorker extends Thread {
             this.preparedDateStmt.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(DataLoaderWorker.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
         DBManager.closeOutConnection();
     }
@@ -160,7 +174,7 @@ public class DataLoaderWorker extends Thread {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(RealtimeDataConsumer.class.getName()).log(Level.SEVERE, null, ex);
+                    LOGGER.log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -171,8 +185,8 @@ public class DataLoaderWorker extends Thread {
         }
         commitTransBatch();
         long end = System.currentTimeMillis();
-        System.err.println("Data Loader Worker Completed! Runtime: " + (end - start) / 1000 + " seconds");
-        System.err.println("Data Loader Worker, Max Realtime Output Queue Size: " + outputQueueMaxSize);
+        LOGGER.info("Data Loader Thread Runtime: " + (end - start) / 1000 + " seconds");
+//        System.err.println("Data Loader Worker, Max Realtime Output Queue Size: " + outputQueueMaxSize);
 
     }
 
@@ -276,7 +290,7 @@ public class DataLoaderWorker extends Thread {
     }
 
     private void addOrUpdateDate(Date date) {
-
+        
         calendar.setTime(date);
         try {
             queryDateStmt.setDate(1, date);
@@ -300,6 +314,7 @@ public class DataLoaderWorker extends Thread {
             preparedDateStmt.setInt(4, quater);
             preparedDateStmt.setInt(5, calendar.get(Calendar.YEAR));
             preparedDateStmt.setInt(6, calendar.get(Calendar.WEEK_OF_YEAR));
+            preparedDateStmt.setString(7, WEEKDAYS[calendar.get(Calendar.DAY_OF_WEEK)]);
 
         } catch (SQLException ex) {
             Logger.getLogger(DataLoaderWorker.class.getName()).log(Level.SEVERE, null, ex);
@@ -337,18 +352,18 @@ public class DataLoaderWorker extends Thread {
     private void addSaleTransaction(Long transactionID, String productID, String supplierID, String customerID, String storeID, Date date, double totalPrice) {
 
         try {
-            boolean needInsert = true;
-
-            queryTransStmt.setLong(1, transactionID);
-            ResultSet queryResult = queryTransStmt.executeQuery();
-            if (queryResult.next()) {
-                needInsert = false;
-            }
-            queryResult.close();
-
-            outConn.commit();
-            if (needInsert) {
+            
+            if(transactionID > maxTranID){
+                maxTranID = transactionID;
                 inisertTransactionInBatch(transactionID, productID, supplierID, customerID, storeID, date, totalPrice);
+            }else{
+                queryTransStmt.setLong(1, transactionID);
+                ResultSet queryResult = queryTransStmt.executeQuery();
+                if (!queryResult.next()) {
+                    inisertTransactionInBatch(transactionID, productID, supplierID, customerID, storeID, date, totalPrice);
+                }
+                queryResult.close();
+                outConn.commit();
             }
 
         } catch (SQLException ex) {

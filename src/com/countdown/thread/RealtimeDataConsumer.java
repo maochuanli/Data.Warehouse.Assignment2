@@ -19,6 +19,8 @@ import java.util.logging.Logger;
  */
 public class RealtimeDataConsumer extends Thread {
 
+    private static Logger LOGGER = Logger.getLogger(RealtimeDataConsumer.class.getName());
+    
     private volatile boolean running = true;
     private Queue realtimeInputQueue = null;
     private int inputQueueMaxSize = 0;
@@ -45,6 +47,7 @@ public class RealtimeDataConsumer extends Thread {
 
     @Override
     public void run() {
+        long start = System.currentTimeMillis();
         while (running) {
             int qSize = realtimeInputQueue.size();
 
@@ -69,7 +72,8 @@ public class RealtimeDataConsumer extends Thread {
         }
         //flush the data in stream partition queue
         StreamPartitionQueue.flushPartitions();
-        info("Meshjoin Worker Completed! Max Input Queue Size: " + inputQueueMaxSize);
+        long end = System.currentTimeMillis();
+        LOGGER.info("Meshjoin Worker Thread Runtime: " + (end - start) / 1000 + " seconds");
     }
 
     private void processRecord(HashMap record) {

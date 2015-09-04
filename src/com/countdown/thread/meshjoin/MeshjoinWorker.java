@@ -26,8 +26,9 @@ import java.util.logging.Logger;
  */
 public class MeshjoinWorker {
 
-    private MeshjoinWorker() {
-    }
+    private MeshjoinWorker() {}
+    private static Logger LOGGER = Logger.getLogger(MeshjoinWorker.class.getName());
+    
     private static final MeshjoinWorker INSTANCE = new MeshjoinWorker();
     private final ArrayList<HashMap> meshHashTableUsingList = new ArrayList();
     private final HashMap<String, HashMap> masterBufferTable = new HashMap();
@@ -51,8 +52,8 @@ public class MeshjoinWorker {
 
         //step1, add all records iin new partition into the hash table
         List<HashMap> newAddedTupleList = newAddedPartition.getPartitionTupleList();
-        INSTANCE.info("MeshjoinWorker WARN: partition size: " + newAddedTupleList.size());
-        INSTANCE.info("Meshjoinworker process partition ID..." + newAddedPartition.getPartitionID());
+//        INSTANCE.info("MeshjoinWorker WARN: partition size: " + newAddedTupleList.size());
+        LOGGER.info("process new partition ID: " + newAddedPartition.getPartitionID());
 
         for (HashMap record : newAddedTupleList) {
             INSTANCE.meshHashTableUsingList.add(record);
@@ -181,16 +182,16 @@ public class MeshjoinWorker {
     }
 
     private void cleanupPartition() {
-        info("currentMasterPartitionIndex=" + currentMasterPartitionIndex + ",loadedPartitions=" + loadedPartitions + ",partitions=" + partitions);
+//        info("currentMasterPartitionIndex=" + currentMasterPartitionIndex + ",loadedPartitions=" + loadedPartitions + ",partitions=" + partitions);
         if (loadedPartitions > partitions) {
             StreamPartition pollPartition = StreamPartitionQueue.pollPartition();
-            info("MeshjoinWorker clean up poll partition: " + pollPartition.getPartitionID());
+            LOGGER.info("Meshjoin Worker clean up partition: " + pollPartition.getPartitionID());
             
             List<HashMap> partitionTupleList = pollPartition.getPartitionTupleList();
             for (HashMap partitionTuple : partitionTupleList) {
 
                 if (partitionTuple.get("joined") == null) {
-                    System.err.println("Critical Error! Product ID: " + partitionTuple.get("PRODUCT_ID") + ", TRAN_ID=" + partitionTuple.get(TransactionBean.TRANSACTION_ID) + " NOT matched!");
+                    LOGGER.severe("Critical Error! Product ID: " + partitionTuple.get("PRODUCT_ID") + ", TRAN_ID=" + partitionTuple.get(TransactionBean.TRANSACTION_ID) + " NOT matched!");
                 }
 
                 meshHashTableUsingList.remove(partitionTuple);
@@ -205,7 +206,4 @@ public class MeshjoinWorker {
 
     }
 
-    void info(String msg) {
-        Logger.getLogger(MeshjoinWorker.class.getName()).log(Level.INFO, msg);
-    }
 }
