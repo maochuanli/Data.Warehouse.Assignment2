@@ -18,11 +18,11 @@ function abspath() {
     
 }
 
-scriptPath=$(abspath $0)
+scriptPath=$(abspath $0/..)
 APP_HOME=$(dirname $scriptPath)
 source $APP_HOME/env.sh
 
 
-CP=$APP_HOME/CountDown.Data.Warehouse.jar:$APP_HOME/lib/ojdbc6.jar:$APP_HOME/lib/derbyclient.jar:$APP_HOME/lib/commons-pool2-2.4.2.jar
+CP=$APP_HOME/lib/CountDown.Data.Warehouse.jar:$APP_HOME/lib/ojdbc6.jar:$APP_HOME/lib/derbyclient.jar:$APP_HOME/lib/commons-pool2-2.4.2.jar
 
-$JAVA_HOME/bin/java -cp $CP com.countdown.Main 
+$JAVA_HOME/bin/java -DAPP_HOME=$APP_HOME -cp $CP com.countdown.Main 

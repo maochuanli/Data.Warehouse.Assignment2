@@ -25,7 +25,7 @@ public class DBManager {
     
     private static Connection inTransConn, inMasterConn, outConn;
     public static final String IN_TRANS = "in_transaction_conn";
-    public static final String IN_MASTER = "in_transaction_conn";
+    public static final String IN_MASTER = "in_master_conn";
 
     public static synchronized Connection getInConnection(String flags) {
         if (inTransConn == null) {

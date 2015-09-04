@@ -8,7 +8,7 @@ export JAVA_HOME=/home/mao/jdk1.7.0_80
 export DERBY_HOME=$APP_HOME/derby.home
 export DERBY_OPTS=-Dderby.system.home=$DERBY_HOME
 
-echo "JAVA_HOME=" $JAVA_HOME
-echo "APP_HOME" $APP_HOME
+echo "JAVA_HOME= " $JAVA_HOME
+echo "APP_HOME=  " $APP_HOME
 echo "DERBY_HOME=" $DERBY_HOME
 echo ""

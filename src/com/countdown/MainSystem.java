@@ -18,7 +18,8 @@ import java.util.logging.Logger;
  */
 public class MainSystem {
 
-    private static final String systemFileName = "system.properties";
+    private static final String appHome = System.getProperty("APP_HOME");
+    private static final String systemFileName = appHome+"/system.properties";
     private static final Properties settings = new Properties();
     private static boolean loaded = false;
 

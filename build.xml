@@ -89,6 +89,7 @@
             </fileset>
         </copy> 
        
+        <copydir src="${basedir}/bin" dest="${dist.dir}/bin"/>
         <copydir src="${basedir}/DDL" dest="${dist.dir}/DDL"/>
         <copydir src="${user.home}/db-derby-10.11.1.1-bin/" dest="${dist.dir}/derby.home"/>
         <copy todir="${dist.dir}/derby.home/">
@@ -104,11 +105,11 @@
         <chmod dir="${dist.dir}" perm="ugo+rx" includes="**/startNetworkServer"/>
         <chmod dir="${dist.dir}" perm="ugo+rx" includes="**/ij"/>
         <chmod dir="${dist.dir}" perm="ugo+rx" includes="**/*.sh"/>
-       
+        <move file="${dist.dir}/CountDown.Data.Warehouse.jar" tofile="${dist.dir}/lib/CountDown.Data.Warehouse.jar"/>
         <move file="${dist.dir}" tofile="${dist.dir}/../LI.14854389.a2.v1"/>
         <zip destfile="${dist.dir}/../LI.maochuan.14854389.assignment2.v1.zip">
-            <zipfileset dir="${dist.dir}/../" includes="LI.14854389.a2.v1/**/*"  />
-            <zipfileset dir="${dist.dir}/../" includes="LI.14854389.a2.v1/*.sh" filemode="755" />            
+            <zipfileset dir="${dist.dir}/../" includes="LI.14854389.a2.v1/**/*" excludes="LI.14854389.a2.v1/bin/*.sh" />
+            <zipfileset dir="${dist.dir}/../" includes="LI.14854389.a2.v1/bin/*.sh" filemode="755" />            
         </zip> 
     </target>
 </project>
