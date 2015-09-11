@@ -86,6 +86,7 @@
                 <include name="*.sh"/>
                 <include name="*.bat"/>
                 <include name="*.doc"/>
+                <include name="*.pdf"/>
             </fileset>
         </copy> 
        
