@@ -293,26 +293,30 @@ public class DataLoaderWorker extends Thread {
         
         calendar.setTime(date);
         try {
-            queryDateStmt.setDate(1, date);
-
-            preparedDateStmt.setDate(1, date);
+            int year, month, day;
+            year = calendar.get(Calendar.YEAR);
+            month = calendar.get(Calendar.MONTH);
+            day = calendar.get(Calendar.DAY_OF_MONTH);
+            
+            queryDateStmt.setInt(1, year * 10000 + (month+1) * 100 + day);
+            
+            preparedDateStmt.setInt(1, year * 10000 + (month+1) * 100 + day);
             preparedDateStmt.setInt(2, calendar.get(Calendar.DAY_OF_MONTH));
 
-            int mm = calendar.get(Calendar.MONTH);
-            preparedDateStmt.setInt(3, ++mm);
+            preparedDateStmt.setInt(3, ++month);
 
             int quater = 0;
-            if (mm <= 3) {
+            if (month <= 3) {
                 quater = 1;
-            } else if (mm <= 6) {
+            } else if (month <= 6) {
                 quater = 2;
-            } else if (mm <= 9) {
+            } else if (month <= 9) {
                 quater = 3;
-            } else if (mm <= 12) {
+            } else if (month <= 12) {
                 quater = 4;
             }
             preparedDateStmt.setInt(4, quater);
-            preparedDateStmt.setInt(5, calendar.get(Calendar.YEAR));
+            preparedDateStmt.setInt(5, year);
             preparedDateStmt.setInt(6, calendar.get(Calendar.WEEK_OF_YEAR));
             preparedDateStmt.setString(7, WEEKDAYS[calendar.get(Calendar.DAY_OF_WEEK)]);
 
@@ -374,13 +378,19 @@ public class DataLoaderWorker extends Thread {
     private void inisertTransactionInBatch(Long transactionID, String productID, String supplierID, String customerID, String storeID, Date date, double totalPrice) {
         currentBatchCount++;
 
+        calendar.setTime(date);
         try {
+            int year, month, day;
+            year = calendar.get(Calendar.YEAR);
+            month = calendar.get(Calendar.MONTH);
+            day = calendar.get(Calendar.DAY_OF_MONTH);
+            
             transInsertStmt.setLong(1, transactionID);
             transInsertStmt.setString(2, productID);
             transInsertStmt.setString(3, supplierID);
             transInsertStmt.setString(4, customerID);
             transInsertStmt.setString(5, storeID);
-            transInsertStmt.setDate(6, date);
+            transInsertStmt.setInt(6, year * 10000 + (month+1) * 100 + day);
             transInsertStmt.setDouble(7, totalPrice);
             transInsertStmt.addBatch();
 
