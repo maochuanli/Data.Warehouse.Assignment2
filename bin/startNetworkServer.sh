@@ -18,8 +18,8 @@ function abspath() {
     
 }
 
-scriptPath=$(abspath $0/..)
-APP_HOME=$(dirname $scriptPath)
+scriptPath=$(abspath $0)
+APP_HOME=$(dirname $(dirname $scriptPath))
 source $APP_HOME/env.sh
 
 sh $DERBY_HOME/bin/startNetworkServer
