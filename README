@@ -12,7 +12,7 @@
     Paper Name:      Data Warehousing and Big Data
     Paper Number:    COMP810
     Assignment Name: Assessment 2 – DW Project
-    Submission Date: Friday, 30 th Oct 2015
+    Submission Date: Friday, 30th Oct 2015
 
 
   Documentation
@@ -37,7 +37,11 @@
   ******************************************************************************
   env.sh | env.bat  - the JAVA_HOME variable must be set
   system.properties - the database connection properties are optional to set
-                    - the meshjoin parameters are optional to set  
+                    - the meshjoin parameters are optional to set
+		    - 	meshjoin.partitions=?
+			stream.partition.size=?
+                    - the java.sql.PreparedStatement update batch number to set
+		    - 	sql.insert.batch.size=?
 
   Execution
   -------------------
@@ -85,14 +89,16 @@
   -------------------
 
   For execution of the program, a Java Runtime must be installed on the local
-  operating system. 
-  All Mac OSX, Windows 2008, Debian platforms are supported and have been tested.
-  Both Derby and Oracle databases are supported.
-  Using derby and Oracle together is allowed!
+  operating system, and the JAVA_HOME variable in env.sh | bat MUST be set before running.
+ 
+  All Mac OSX, Windows 2008, Debian operating systemss are supported and have been tested.
+
+  Both Derby and Oracle databases are supported and can be set for both operational and
+	data warehouse databases.
     
   Troubleshooting
   -------------------
 
-  In case the scripts provided are not working as intended, it maybe is caused 
+  In case the scripts provided are not working as intended, it may be caused 
   by space in the installation directory, say "H:\some dir with space\countdown"
   Try unzip the project file into a directory without space!
