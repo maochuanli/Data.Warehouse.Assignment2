@@ -74,6 +74,7 @@
 
     -->
     <target name="-post-clean">
+        <echoproperties/>
         <echo message="clean the dir files: ${user.home}/NB.Builds/${application.title}"/>
         <delete quiet="true" file="${user.home}/NB.Builds/${application.title}/LI.maochuan.14854389.assignment2.v1.zip"/>
         <delete quiet="true" dir="${user.home}/NB.Builds/${application.title}/LI.14854389.a2.v1"/>
@@ -93,7 +94,7 @@
         <copydir src="${basedir}/bin" dest="${dist.dir}/bin"/>
 		<copydir src="${basedir}/lib" dest="${dist.dir}/lib"/>
         <copydir src="${basedir}/DDL" dest="${dist.dir}/DDL"/>
-        <copydir src="${java.home}/db/" dest="${dist.dir}/derby.home"/>
+        <copydir src="${java.home}/../db/" dest="${dist.dir}/derby.home"/>
         <copy todir="${dist.dir}/derby.home/">
             <fileset dir="${basedir}">
                 <include name="derby.properties"/>
